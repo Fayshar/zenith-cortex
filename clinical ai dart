@@ -1,0 +1,32 @@
+class ClinicalAIOrchestrator {
+  final List<ClinicalAIModel> _models;
+  final ClinicalKnowledgeGraph _knowledgeGraph;
+
+  Future<ClinicalInsights> analyzeContext(ClinicalContext context) async {
+    final predictions = await Future.wait(
+      _models.map((model) => model.predict(context)),
+    );
+
+    final validated = _knowledgeGraph.validatePredictions(
+      predictions,
+      context,
+    );
+
+    return ClinicalInsights(
+      primaryDiagnosis: validated.primary,
+      differentials: validated.differentials,
+      confidence: validated.confidence,
+      evidence: validated.evidence,
+      recommendations: _generateRecommendations(validated),
+    );
+  }
+
+  List<ClinicalRecommendation> _generateRecommendations(
+    ValidatedPredictions predictions) {
+    return [
+      ..._knowledgeGraph.getGuidelines(predictions.primary),
+      ..._safetyCheck(predictions),
+      ..._drugInteractionCheck(predictions),
+    ];
+  }
+}
