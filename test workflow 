@@ -1,0 +1,33 @@
+void main() {
+  group('Medical Error Handling', () {
+    late MedicalErrorHandler handler;
+    
+    setUp(() {
+      handler = MedicalErrorHandler(
+        reporter: MockErrorReporter(),
+        cache: MockErrorCache(),
+      );
+    });
+
+    testWidgets('Corrupted ZIP shows proper UI', (tester) async {
+      await tester.pumpWidget(
+        MedicalErrorBoundary(
+          child: TestApp(),
+        ),
+      );
+
+      // Trigger corrupted file error
+      await tester.tap(find.byKey(Key('load-corrupted-file')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Corrupted medical data file'), findsOneWidget);
+    });
+
+    test('Network error logs properly', () async {
+      final error = MedicalNetworkError(500, '/records/123');
+      await handler.handleError(error);
+      
+      verify(mockReporter.reportError(error)).called(1);
+    });
+  });
+}
