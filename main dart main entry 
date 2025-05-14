@@ -1,0 +1,41 @@
+// main.dart - App Entry Point
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:biomedos/core/clinical_theme.dart';
+import 'package:biomedos/core/routing/app_router.dart';
+import 'package:biomedos/core/security/auth_provider.dart';
+import 'package:biomedos/core/security/encryption_service.dart';
+import 'package:biomedos/features/patient_management/data/patient_repository.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EncryptionService.initialize();
+  
+  runApp(
+    ProviderScope(
+      overrides: [
+        encryptionServiceProvider.overrideWithValue(EncryptionService()),
+        authRepositoryProvider.overrideWithValue(SecureAuthRepository()),
+      ],
+      child: const BioMedOSApp(),
+    ),
+  );
+}
+
+class BioMedOSApp extends ConsumerWidget {
+  const BioMedOSApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
+    
+    return MaterialApp.router(
+      title: 'BioMedOS',
+      theme: ClinicalTheme.lightTheme,
+      darkTheme: ClinicalTheme.darkTheme,
+      routerConfig: router,
+      debugShowCheckedModeBanner: false,
+      builder: (context, child) => MedicalSafetyWrapper(child: child!),
+    );
+  }
+}
