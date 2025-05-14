@@ -1,0 +1,28 @@
+class ClinicalAIAssistant extends ConsumerWidget {
+  final ClinicalContext context;
+
+  const ClinicalAIAssistant({super.key, required this.context});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final aiInsights = ref.watch(clinicalAIProvider(context));
+
+    return aiInsights.when(
+      loading: () => const ClinicalLoader(),
+      error: (err, _) => ClinicalErrorWidget(error: err),
+      data: (insights) => ClinicalCard(
+        title: 'AI Clinical Assistant',
+        child: Column(
+          children: [
+            _buildConfidenceIndicator(insights.confidence),
+            DifferentialDiagnosisList(differentials: insights.differentials),
+            ClinicalRecommendationList(recommendations: insights.recommendations),
+            if (insights.alerts.isNotEmpty)
+              ClinicalAlertPanel(alerts: insights.alerts),
+            EvidenceReviewView(evidence: insights.evidence),
+          ],
+        ),
+      ),
+    );
+  }
+}
