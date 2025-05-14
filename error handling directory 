@@ -1,0 +1,6 @@
+error_handling/
+├── handlers/
+├── exceptions/
+├── ui/
+├── reporting/
+└── testing/
