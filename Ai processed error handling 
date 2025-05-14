@@ -1,0 +1,19 @@
+class ClinicalAIService {
+  final TensorFlowLite _tflite;
+  final MedicalErrorHandler _errorHandler;
+
+  Future<DiagnosisPrediction> predict(ClinicalContext context) async {
+    try {
+      final input = _prepareInput(context);
+      final output = await _tflite.runModel(input);
+      return _parseOutput(output);
+    } on TfliteException catch (e) {
+      final error = ClinicalAIError(
+        _tflite.modelId, 
+        'prediction',
+      );
+      await _errorHandler.handleError(error);
+      rethrow;
+    }
+  }
+}
