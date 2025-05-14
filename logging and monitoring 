@@ -1,0 +1,20 @@
+class MedicalErrorReporter {
+  final SentryClient _sentry;
+  final Crashlytics _crashlytics;
+
+  Future<void> reportError(MedicalError error) async {
+    await _sentry.captureEvent(
+      SentryEvent(
+        message: error.logMessage,
+        timestamp: error.timestamp,
+        level: SentryLevel.error,
+      ),
+    );
+
+    await _crashlytics.recordError(
+      error,
+      stackTrace: StackTrace.current,
+      reason: error.logMessage,
+    );
+  }
+}
