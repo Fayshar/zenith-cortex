@@ -1,0 +1,34 @@
+lib/
+├── core/
+│   ├── ai_engine/                  # AI Implementation
+│   │   ├── diagnosis_engine.dart
+│   │   ├── management_advisor.dart
+│   │   └── clinical_nlp.dart
+│   ├── clinical_data/              # Core Medical Components
+│   │   ├── models/
+│   │   │   ├── patient_encounter.dart
+│   │   │   ├── medical_history.dart
+│   │   │   ├── physical_exam.dart
+│   │   │   ├── investigation.dart
+│   │   │   └── management_plan.dart
+│   │   ├── templates/              # AI-Powered Templates
+│   │   │   ├── history_templates.dart
+│   │   │   ├── exam_templates.dart
+│   │   │   └── management_templates.dart
+│   │   └── workflows/              # Clinical Workflows
+│   │       ├── history_workflow.dart
+│   │       └── exam_workflow.dart
+├── features/
+│   ├── history_taking/
+│   ├── physical_exam/
+│   ├── investigations/
+│   ├── diagnosis/
+│   └── management/
+└── ai/
+    ├── services/                   # AI Services
+    │   ├── history_analyzer.dart
+    │   ├── image_analysis.dart
+    │   └── decision_support.dart
+    └── widgets/                   # AI Assist Widgets
+        ├── ai_suggestions.dart
+        └── differential_list.dart
