@@ -1,0 +1,102 @@
+// error_handling.dart
+abstract class MedicalError implements Exception {
+  String get userMessage;
+  String get logMessage;
+  DateTime get timestamp;
+}
+
+// 1. File Handling Errors
+class MedicalFileError extends MedicalError {
+  final String filePath;
+  final dynamic code;
+
+  MedicalFileError(this.filePath, this.code);
+
+  @override String get userMessage => 'Invalid medical file format';
+  @override String get logMessage => 'FileError [$code] at $filePath';
+  @override DateTime get timestamp => DateTime.now().toUtc();
+}
+
+class CorruptedZipError extends MedicalFileError {
+  CorruptedZipError(super.filePath) : super('INVALID_ZIP_HEADER');
+
+  @override String get userMessage => 'Corrupted medical data file';
+}
+
+// 2. Network Errors
+class MedicalNetworkError extends MedicalError {
+  final int? statusCode;
+  final String endpoint;
+
+  MedicalNetworkError(this.statusCode, this.endpoint);
+
+  @override String get userMessage => 'Connection to medical server failed';
+  @override String get logMessage => 'NetworkError $statusCode at $endpoint';
+  @override DateTime get timestamp => DateTime.now().toUtc();
+}
+
+// 3. AI Processing Errors
+class ClinicalAIError extends MedicalError {
+  final String modelId;
+  final String predictionPhase;
+
+  ClinicalAIError(this.modelId, this.predictionPhase);
+
+  @override String get userMessage => 'Clinical analysis failed';
+  @override String get logMessage => 'AIError in $modelId during $predictionPhase';
+  @override DateTime get timestamp => DateTime.now().toUtc();
+}
+
+// Central Error Handler
+class MedicalErrorHandler {
+  final MedicalErrorReporter _reporter;
+  final MedicalErrorCache _cache;
+
+  Future<void> handleError(MedicalError error) async {
+    await _cache.logError(error);
+    await _reporter.reportError(error);
+    
+    if (error is CorruptedZipError) {
+      await _handleCorruptedFile(error);
+    }
+  }
+
+  Future<void> _handleCorruptedFile(CorruptedZipError error) async {
+    await SecureStorage.delete(error.filePath);
+    Analytics.track('corrupted_file_cleaned');
+  }
+}
+
+// Error Boundary Widget
+class MedicalErrorBoundary extends StatelessWidget {
+  final Widget child;
+  
+  const MedicalErrorBoundary({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ErrorWidgetBuilder(
+      child: child,
+      onError: (error, stack) {
+        if (error is MedicalError) {
+          context.read<MedicalErrorHandler>().handleError(error);
+          return _buildMedicalErrorUI(error);
+        }
+        return _buildGenericError();
+      },
+    );
+  }
+
+  Widget _buildMedicalErrorUI(MedicalError error) {
+    return MedicalAlertScreen(
+      title: 'Clinical Error',
+      message: error.userMessage,
+      actions: [
+        MedicalTextButton(
+          label: 'View Details',
+          onPressed: () => _showErrorDetails(error),
+        ),
+      ],
+    );
+  }
+}
