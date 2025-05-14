@@ -1,0 +1,24 @@
+class MedicalFileValidator {
+  static const _validHeaders = {
+    'zip': [0x50, 0x4B, 0x03, 0x04],
+    'dicom': [0x44, 0x49, 0x43, 0x4D],
+  };
+
+  Future<void> validateMedicalFile(File file) async {
+    try {
+      final bytes = await file.readAsBytes();
+      final header = bytes.sublist(0, 4);
+      
+      if (!_isValidHeader(header)) {
+        throw CorruptedZipError(file.path);
+      }
+    } on PlatformException catch (e) {
+      throw MedicalFileError(file.path, e.code);
+    }
+  }
+
+  bool _isValidHeader(List<int> header) {
+    return _validHeaders.values.any((pattern) => 
+      listEquals(header, pattern));
+  }
+}
