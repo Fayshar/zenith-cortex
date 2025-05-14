@@ -1,0 +1,36 @@
+class ClinicalExamBodyMap extends StatelessWidget {
+  final Map<BodyRegion, ExamFinding> findings;
+  final ValueChanged<BodyRegion> onRegionSelected;
+
+  const ClinicalExamBodyMap({
+    super.key,
+    required this.findings,
+    required this.onRegionSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InteractiveViewer(
+      child: Stack(
+        children: [
+          SvgPicture.asset('assets/body_map.svg'),
+          ..._buildFindingOverlays(),
+          ..._buildInteractiveRegions(),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildFindingOverlays() {
+    return findings.entries.map((entry) {
+      return Positioned(
+        left: entry.key.coordinates.x,
+        top: entry.key.coordinates.y,
+        child: ClinicalFindingMarker(
+          finding: entry.value,
+          onPressed: () => _showFindingDetails(entry.value),
+        ),
+      );
+    }).toList();
+  }
+}
