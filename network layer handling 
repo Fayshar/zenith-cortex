@@ -1,0 +1,22 @@
+class MedicalApiClient {
+  final Dio _dio;
+  final MedicalErrorHandler _errorHandler;
+
+  Future<ClinicalData> fetchPatientRecords(String patientId) async {
+    try {
+      final response = await _dio.get(
+        '/records/$patientId',
+        options: Options(validateStatus: (status) => status < 400),
+      );
+      
+      return ClinicalData.fromSecureJson(response.data);
+    } on DioException catch (e) {
+      final error = MedicalNetworkError(
+        e.response?.statusCode, 
+        e.requestOptions.path,
+      );
+      await _errorHandler.handleError(error);
+      rethrow;
+    }
+  }
+}
