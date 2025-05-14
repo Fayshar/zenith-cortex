@@ -1,0 +1,12 @@
+enum RecoveryAction {
+  retry,
+  contactSupport,
+  clearCache,
+  relogin,
+}
+
+Map<Type, RecoveryAction> _errorRecoveryMap = {
+  CorruptedZipError: RecoveryAction.clearCache,
+  MedicalNetworkError: RecoveryAction.retry,
+  ClinicalAIError: RecoveryAction.contactSupport,
+};
