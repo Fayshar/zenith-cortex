@@ -1,0 +1,28 @@
+class MedicalErrorUI extends ConsumerWidget {
+  const MedicalErrorUI({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: ErrorBoundary(
+        child: _buildContent(),
+        fallback: (error, stack) => _buildErrorUI(error),
+      ),
+    );
+  }
+
+  Widget _buildErrorUI(Object error) {
+    return MedicalAlertCard(
+      title: 'Clinical Operation Failed',
+      content: error is MedicalError 
+          ? Text(error.userMessage)
+          : const Text('Unexpected medical system error'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.medical_services),
+          onPressed: () => _contactSupport(),
+        ),
+      ],
+    );
+  }
+}
