@@ -1,0 +1,50 @@
+class ClinicalWorkflowScreen extends ConsumerStatefulWidget {
+  final String patientId;
+
+  const ClinicalWorkflowScreen({super.key, required this.patientId});
+
+  @override
+  ClinicalWorkflowScreenState createState() => ClinicalWorkflowScreenState();
+}
+
+class ClinicalWorkflowScreenState extends ConsumerState<ClinicalWorkflowScreen> {
+  final _workflowEngine = ClinicalWorkflowEngine();
+  final _aiOrchestrator = ClinicalAIOrchestrator();
+
+  @override
+  Widget build(BuildContext context) {
+    final patient = ref.watch(patientProvider(widget.patientId));
+    
+    return patient.when(
+      loading: () => const ClinicalLoader(),
+      error: (err, _) => ClinicalErrorWidget(error: err),
+      data: (patient) => ClinicalWorkflowBuilder(
+        stages: const [
+          WorkflowStage.history,
+          WorkflowStage.exam,
+          WorkflowStage.investigations,
+          WorkflowStage.diagnosis,
+          WorkflowStage.management,
+        ],
+        builder: (context, stage) => _buildStageContent(stage, patient),
+      ),
+    );
+  }
+
+  Widget _buildStageContent(WorkflowStage stage, Patient patient) {
+    return Column(
+      children: [
+        ClinicalContextCard(patient: patient),
+        const SizedBox(height: 16),
+        _buildStageComponent(stage),
+        const SizedBox(height: 16),
+        ClinicalDecisionSupport(
+          context: ClinicalContext(
+            patient: patient,
+            stage: stage,
+          ),
+        ),
+      ],
+    );
+  }
+}
