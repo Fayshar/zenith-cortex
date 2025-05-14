@@ -1,0 +1,6 @@
+dependencies:
+  sentry_flutter: ^7.9.0
+  firebase_crashlytics: ^3.0.18
+  dio: ^5.3.2
+  file_picker: ^5.3.3
+  tensorflow_lite_flutter: ^0.9.5
