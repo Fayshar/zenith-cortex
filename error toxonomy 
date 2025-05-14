@@ -1,0 +1,10 @@
+graph TD
+A[MedicalError] --> B[FileError]
+A --> C[NetworkError]
+A --> D[AIError]
+B --> E[CorruptedZipError]
+B --> F[InvalidFormatError]
+C --> G[TimeoutError]
+C --> H[AuthError]
+D --> I[ModelLoadError]
+D --> J[PredictionError]
