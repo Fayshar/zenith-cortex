@@ -1,0 +1,43 @@
+class MedicalDataService {
+  final EncryptionService _encryption;
+  final SecureStorage _storage;
+  final ClinicalAuditLogger _logger;
+
+  Future<void> saveClinicalRecord(
+    ClinicalRecord record,
+    String userId,) async {
+    final encryptedData = await _encryption.encrypt(record.toJson());
+    
+    await _storage.writeSecureData(
+      key: 'record_${record.id}',
+      value: encryptedData,
+    );
+
+    _logger.logEvent(
+      ClinicalAuditEvent(
+        type: EventType.recordAccess,
+        user: userId,
+        details: 'Saved record ${record.id}',
+      ),
+    );
+  }
+
+  Future<ClinicalRecord> getClinicalRecord(
+    String recordId,
+    String userId,) async {
+    final encrypted = await _storage.readSecureData('record_$recordId');
+    final decrypted = await _encryption.decrypt(encrypted!);
+    
+    _logger.logEvent(
+      ClinicalAuditEvent(
+        type: EventType.recordAccess,
+        user: userId,
+        details: 'Accessed record $recordId',
+      ),
+    );
+
+    return ClinicalRecord.fromJson(
+      jsonDecode(decrypted),
+    );
+  }
+}
