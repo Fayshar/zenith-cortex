@@ -1,0 +1,15 @@
+final patientDataProvider = FutureProvider.autoDispose
+.family<ClinicalData, String>((ref, patientId) async {
+  final apiClient = ref.watch(medicalApiClientProvider);
+  final errorHandler = ref.watch(medicalErrorHandlerProvider);
+
+  try {
+    return await apiClient.fetchPatientRecords(patientId);
+  } on MedicalNetworkError {
+    ref.invalidate(medicalApiClientProvider);
+    rethrow;
+  } on MedicalError catch (e) {
+    errorHandler.handleError(e);
+    throw e;
+  }
+});
