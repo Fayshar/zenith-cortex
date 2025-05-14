@@ -1,0 +1,18 @@
+class MedicalSecurity {
+  static final _key = dotenv.get('ENCRYPTION_KEY');
+  static final _iv = IV.fromLength(16);
+  static final _encrypter = Encrypter(AES(Key.fromUtf8(_key)));
+
+  static String encryptMedicalData(String data) {
+    return _encrypter.encrypt(data, iv: _iv).base64;
+  }
+
+  static String decryptMedicalData(String encrypted) {
+    return _encrypter.decrypt64(encrypted, iv: _iv);
+  }
+
+  static Future<void> secureAuditLog(String event) async {
+    final encryptedEvent = encryptMedicalData(event);
+    await SecureStorage.write('audit_log', encryptedEvent);
+  }
+}
